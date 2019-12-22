@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 void main() => runApp(MyApp());
 
+// 测试git
 class MyApp extends StatelessWidget {
   // 此部件是应用程序的根
   @override
