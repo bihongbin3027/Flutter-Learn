@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 void main() => runApp(MyApp());
 
-// 测试git
 class MyApp extends StatelessWidget {
   // 此部件是应用程序的根
   @override
@@ -21,7 +20,13 @@ class MyApp extends StatelessWidget {
         //不会重新启动。
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      // 注册路由表
+      routes: {
+        '/new_page': (context) {
+          return NewRoute(text: ModalRoute.of(context).settings.arguments);
+        },
+      },
+      home: MyHomePage(title: 'Flutter Demo Home Page')
     );
   }
 }
@@ -98,6 +103,19 @@ class _MyHomePageState extends State<MyHomePage> {
               '$_counter',
               style: Theme.of(context).textTheme.display1,
             ),
+            FlatButton(
+              child: Text('open new route'),
+              textColor: Colors.blue,
+              onPressed: () async {
+                // 导航到新路由
+                var result = await Navigator.of(context).pushNamed(
+                  '/new_page',
+                  arguments: '我是路由xxxx'
+                );
+                // 输出路由返回结果
+                print('路由返回值：$result');
+              },
+            )
           ],
         ),
       ),
@@ -106,6 +124,37 @@ class _MyHomePageState extends State<MyHomePage> {
         tooltip: 'Increment',
         child: Icon(Icons.add),
       ), // 该逗号结尾使自动格式化更适合构建方法。
+    );
+  }
+}
+
+class NewRoute extends StatelessWidget {
+  NewRoute({
+    Key key,
+    @required this.text
+  }) : super(key: key);
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('提示')
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(18),
+        child: Center(
+          child: Column(
+            children: <Widget>[
+              Text(text),
+              RaisedButton(
+                onPressed: () => Navigator.pop(context, '我是返回值'),
+                child: Text('返回'),
+              ),
+            ],
+          ),
+        )
+      ),
     );
   }
 }
