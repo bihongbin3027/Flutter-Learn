@@ -22,139 +22,95 @@ class MyApp extends StatelessWidget {
       ),
       // 注册路由表
       routes: {
-        '/new_page': (context) {
-          return NewRoute(text: ModalRoute.of(context).settings.arguments);
-        },
+        // '/new_page': (context) {
+        //   return NewRoute(text: ModalRoute.of(context).settings.arguments);
+        // },
       },
-      home: MyHomePage(title: 'Flutter Demo Home Page')
+      home: FormTestRoute()
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
-
-  //此部件是您的应用程序的主页。 它是有状态的，意思是
-  //它具有一个State对象（定义如下），其中包含影响
-  //它的外观。
-
-  //此类是状态的配置。 它保存值（在此
-  //父标题（在本例中为App小部件）提供的标题）
-  //由State的build方法使用。 Widget子类中的字段是
-  //始终标记为“最终”。
-
-  final String title;
-
+class FormTestRoute extends StatefulWidget {
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _FormTestRouteState createState() => new _FormTestRouteState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      //对setState的调用告诉Flutter框架
-      //在此状态下更改，这将导致它重新运行下面的build方法
-      //，以便显示可以反映更新的值。 如果我们改变了
-      // _counter而不调用setState（），则build方法将不会
-      //再次调用，因此什么也不会发生。
-      _counter++;
-    });
-  }
+class _FormTestRouteState extends State<FormTestRoute> {
+  TextEditingController _unameController = new TextEditingController();
+  TextEditingController _pwdController = new TextEditingController();
+  GlobalKey _formKey = new GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
-    //每次调用setState时都会重新运行此方法，例如完成
-    //通过上面的_incrementCounter方法。
-    // Flutter框架已经过优化，可以重新运行构建方法
-    //快速，因此您可以重建任何需要更新的内容
-    //而不是必须单独更改小部件的实例。
     return Scaffold(
       appBar: AppBar(
-        //在这里，我们从MyHomePage对象创建的值中
-        // App.build方法，并使用它来设置我们的应用栏标题。
-        title: Text(widget.title),
+        title: Text('登陆'),
       ),
-      body: Center(
-        // Center是一个布局小部件。 它需要一个孩子并放置它
-        //在父级中间。
+      body: Form(
+        key: _formKey, // 设置globalKey，用于后面获取FormState
+        autovalidate: true, // 开启自动效验
         child: Column(
-          //列也是布局小部件。 它需要一个孩子的清单和
-          //将它们垂直排列。 默认情况下，它会自动调整大小以适合其
-          //水平放置子项，并尝试使其高度与父项相同。
-          //
-          //调用“调试绘画”（在控制台中按“ p”，选择
-          // Android中的Flutter Inspector中的“切换调试画图”操作
-          // Studio，或Visual Studio Code中的“切换调试画图”命令）
-          //以查看每个小部件的线框。
-          //
-          //列具有各种属性来控制其自身的大小以及
-          //它如何定位其子级。 这里我们使用mainAxisAlignment
-          //将孩子垂直居中； 主轴在这里是垂直
-          //轴，因为列是垂直的（交叉轴为
-          //水平）。
-          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text(
-              'You have clicked the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.display1,
-            ),
-            FlatButton(
-              child: Text('open new route'),
-              textColor: Colors.blue,
-              onPressed: () async {
-                // 导航到新路由
-                var result = await Navigator.of(context).pushNamed(
-                  '/new_page',
-                  arguments: '我是路由xxxx'
-                );
-                // 输出路由返回结果
-                print('路由返回值：$result');
+            TextFormField(
+              autofocus: true,
+              controller: _unameController,
+              decoration: InputDecoration(
+                labelText: '用户名',
+                hintText: '用户名或邮箱',
+                icon: Icon(Icons.person),
+              ),
+              // 效验用户名
+              validator: (v) {
+                return v.trim().length > 0 ? null : '用户名不能为空';
               },
-            )
+            ),
+            TextFormField(
+              controller: _pwdController,
+              decoration: InputDecoration(
+                labelText: '密码',
+                hintText: '您的登陆密码',
+                icon: Icon(Icons.lock),
+              ),
+              obscureText: true,
+              // 效验密码
+              validator: (v) {
+                return v.trim().length > 5 ? null : '密码不能少于6位';
+              },
+            ),
+            // 登陆按钮
+            Padding(
+              padding: const EdgeInsets.only(top: 28.0),
+              child: Row(
+                children: <Widget>[
+                  Expanded(
+                    child: Builder(builder: (context) {
+                      return RaisedButton(
+                        padding: EdgeInsets.all(15.0),
+                        child: Text('登陆'),
+                        color: Theme.of(context).primaryColor,
+                        textColor: Colors.white,
+                        onPressed: () {
+                          //在这里不能通过此方式获取FormState，context不对
+                          //print(Form.of(context));
+
+                          // 通过_formKey.currentState 获取FormState后，
+                          // 调用validate()方法校验用户名密码是否合法，校验
+                          // 通过后再提交数据
+                          if((Form.of(context)).validate()){
+                            // 验证通过提交数据
+                          }
+                        }
+                      );
+                    }),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ), // 该逗号结尾使自动格式化更适合构建方法。
     );
   }
 }
 
-class NewRoute extends StatelessWidget {
-  NewRoute({
-    Key key,
-    @required this.text
-  }) : super(key: key);
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('提示')
-      ),
-      body: Padding(
-        padding: EdgeInsets.all(18),
-        child: Center(
-          child: Column(
-            children: <Widget>[
-              Text(text),
-              RaisedButton(
-                onPressed: () => Navigator.pop(context, '我是返回值'),
-                child: Text('返回'),
-              ),
-            ],
-          ),
-        )
-      ),
-    );
-  }
-}
